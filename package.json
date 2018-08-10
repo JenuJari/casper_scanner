@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "52low": "gulp 52low && casperjs ./output/index.js"
+    "52low": "gulp 52low && casperjs ./output/index.js",
+    "rsi": "gulp rsi && casperjs ./output/index.js"
   },
   "dependencies": {
     "casperjs": "^1.1.4",

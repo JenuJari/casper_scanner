@@ -7,18 +7,27 @@ var data = {
     outputdir : path.resolve(__dirname,'output')
 };
 
-gulp.task('cli', function () {
+// gulp.task('cli', function () {
 
-    return gulp.src('cli/**/*.jsx')
-        .pipe(babel())
-        .pipe(gulp.dest(data.outputdir));
+//     return gulp.src('cli/**/*.jsx')
+//         .pipe(babel())
+//         .pipe(gulp.dest(data.outputdir));
 
-});
+// });
 
 gulp.task('52low', function () {
 
     return gulp.src('52low/**/*.jsx')
         .pipe(babel())
-        .pipe(data.outputdir);
+        .pipe(gulp.dest(data.outputdir));
+
+});
+
+
+gulp.task('rsi', function () {
+
+    return gulp.src('rsi/**/*.jsx')
+        .pipe(babel())
+        .pipe(gulp.dest(data.outputdir));
 
 });

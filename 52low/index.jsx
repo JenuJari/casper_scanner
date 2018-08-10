@@ -19,11 +19,10 @@ const casper = require("casper").create({
     verbose: true                  // log messages will be printed out to the console
 });
 
-let FILE_PATH = '52_week_low.csv';
+let FILE_PATH = 'output/52_week_low.csv';
 const Filtered = [];
-const positive = [];
-const negative = [];
-
+const ResultArr = [];
+let OutputStr = "";
 const bse_52week_low_url = 'https://www.bseindia.com/markets/equity/EQReports/HighLow.aspx?expandable=2&Flag=L';
 
 const pre = "https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?symbol=";
@@ -65,10 +64,32 @@ casper.formatFile = function (frm) {
     //utils.dump(Filtered);
 };
 
+casper.appendOutputString = function (s) {OutputStr += s + '\r\n'; };
+
 casper.dumpOutput = function () {
-    positive.sort((a,b) => parseFloat(a.deliveryPerc) - parseFloat(b.deliveryPerc));
-    negative.sort((a,b) => parseFloat(a.deliveryPerc) - parseFloat(b.deliveryPerc));
-    FS.write('output.json', JSON.stringify({ positive : positive , negative : negative}));
+    ResultArr.sort((a,b) => parseFloat(a.deliveryPerc) - parseFloat(b.deliveryPerc));
+    this.appendOutputString('================================Results================================');
+    for (var i = ResultArr.length - 1; i >= 0; i--) {
+        let info = ResultArr[i];
+        this.appendOutputString('====================================================================');
+        this.appendOutputString('||                                                                ||');
+        this.appendOutputString('====================================================================');
+        this.appendOutputString('Company Name         :: ' + info.companyName );
+        this.appendOutputString('Symbol               :: ' + info.symbol );
+        this.appendOutputString('Grade                :: ' + info.link.grade );
+        this.appendOutputString('URL                  :: ' + info.link.stockurl );
+        this.appendOutputString('Last Price           :: ' + info.lastPrice );
+        this.appendOutputString('Previous Close       :: ' + info.previousClose );
+        this.appendOutputString('Change               :: ' + info.change );
+        this.appendOutputString('% Chnage             :: ' + info.pChange );
+        this.appendOutputString('% Delivery           :: ' + info.deliveryPerc );
+        this.appendOutputString('52 High/Low          :: ' + info.high52 + ' / ' + info.low52 );
+        this.appendOutputString('High|Open|Close|Low  :: ' + info.dayHigh + ' | ' + info.open + ' | ' + info.closePrice + ' | ' + info.dayLow );
+        this.appendOutputString('===================================================================');
+        this.appendOutputString('||                                                               ||');
+        this.appendOutputString('===================================================================');
+    }
+    FS.write('output/52lowResults.txt', OutputStr);
 };
 
 casper.start(bse_52week_low_url, function () {
@@ -106,11 +127,8 @@ casper.then(function() {
                 let infos = this.evaluate(getALlInfos);            
                 if(parseFloat(infos.deliveryPerc) > 30) {
                     infos.link = link;
-                    if(parseFloat(infos.change) > 0) {
-                       positive.push(infos);
-                    } else {
-                       negative.push(infos);
-                    }
+                    infos.closePositive = parseFloat(infos.change) > 0;
+                    ResultArr.push(infos);
                 }
             }, function () {
                 return ;
